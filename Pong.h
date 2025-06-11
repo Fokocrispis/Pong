@@ -7,7 +7,7 @@
 #include <stdbool.h> 
 
 // Gameloop definitions
-#define TIMER 50000000
+#define TIMER 1000000
 extern bool pause;
 
 // Screen size definitions
@@ -15,7 +15,7 @@ extern bool pause;
 #define HEIGHT 10
 #define PLAYER_START 3
 
-// Object constants
+// Object constants - needs redo for uC
 #define BALL 'O'
 #define PLAYER 'I'
 #define WALL '-'

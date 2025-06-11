@@ -4,6 +4,8 @@
 
 #include "Pong.h"
 
+
+// To do: read keyboard using UART
 void gameFunctions() {
 
 	if (_kbhit()) {
@@ -13,6 +15,9 @@ void gameFunctions() {
 	}
 }
 
+
+
+// To do: replace software timer with a hardware timer
 int main(void) {
 	initGame();
 
@@ -23,6 +28,7 @@ int main(void) {
 			updateGame();
 		}
 		gameFunctions();
+
 		for (int i = 0; i < TIMER; i++);
 
 	}

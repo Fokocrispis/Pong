@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include <conio.h>
 
+
+// To do: replace chars for booleans for easy hex conversion. 
+// Game logic can be kept and printing can be done as follows: pass values from char map[][] to boolean bitMap[][]. 
+// If char != ' ' then value in bitMap = 1, else = 0; Search for spaces to convert from char to bit representation.
+// Each column represents 2 hex numbers that can be directly used on the pendulum.
 char map[HEIGHT][WIDTH];
 
 struct vector ballPosition;
@@ -44,6 +49,7 @@ void initMap() {
 	}
 }
 
+// To do: printing has to be adapted to uC
 void printMap(void) {
 	int x, y, z = 0;
 
@@ -91,6 +97,8 @@ void resumeGame(void) {
 	pause = false;
 }
 
+
+// To do: keyboard input to be replaced by joystick output
 void checkInput() {
 	static int lastKey = 0;
 
@@ -118,34 +126,64 @@ void checkInput() {
 void updateGame(void) {
 	// Player update
 	checkInput();
-
 	if ((player1.y + player1.speed > 0) && (player1.y + player1.speed + player1.length) < HEIGHT) {
 		player1.y += player1.speed;
 	}
-
 	if ((player2.y + player2.speed > 0) && (player2.y + player2.speed + player2.length) < HEIGHT) {
 		player2.y += player2.speed;
 	}
 
-	// Ball update
-	if ((ballPosition.y + ballSpeed.y) == HEIGHT || (ballPosition.y + ballSpeed.y) < 0) {
+	// Ball update - wall collision
+	if ((ballPosition.y + ballSpeed.y) >= HEIGHT || (ballPosition.y + ballSpeed.y) < 0) {
 		ballSpeed.y = -ballSpeed.y;
 	}
 
-	if (((ballPosition.x + ballSpeed.x) == player1.x) && (ballPosition.y >= player1.y) && (ballPosition.y <= player1.y + player1.length - 1)) {
+	// Player 1 paddle collision
+	if (((ballPosition.x + ballSpeed.x) == player1.x) &&
+		(ballPosition.y >= player1.y) &&
+		(ballPosition.y <= player1.y + player1.length - 1)) {
+
 		ballSpeed.x = -ballSpeed.x;
-		ballSpeed.y = player1.speed;
+
+		// Determine which part of paddle was hit
+		int relativeHit = ballPosition.y - player1.y;
+		if (relativeHit == 0) {
+			ballSpeed.y = -1;      // Top section - ball goes up
+		}
+		else if (relativeHit == 1) {
+			ballSpeed.y = 0;       // Middle section - straight bounce
+		}
+		else {
+			ballSpeed.y = 1;       // Bottom section - ball goes down
+		}
 	}
-	else if (((ballPosition.x + ballSpeed.x) == player2.x - 1) && (ballPosition.y >= player2.y) && (ballPosition.y <= player2.y + player2.length - 1)) {
+	// Player 2 paddle collision
+	else if (((ballPosition.x + ballSpeed.x) == player2.x - 1) &&
+		(ballPosition.y >= player2.y) &&
+		(ballPosition.y <= player2.y + player2.length - 1)) {
+
 		ballSpeed.x = -ballSpeed.x;
-		ballSpeed.y = player2.speed;
+
+		// Determine which part of paddle was hit
+		int relativeHit = ballPosition.y - player2.y;
+		if (relativeHit == 0) {
+			ballSpeed.y = -1;      // Top section - ball goes up
+		}
+		else if (relativeHit == 1) {
+			ballSpeed.y = 0;       // Middle section - straight bounce
+		}
+		else {
+			ballSpeed.y = 1;       // Bottom section - ball goes down
+		}
 	}
-	else if (ballPosition.x ==0 || ballPosition.x == WIDTH-1) {
+	// Goal detection
+	else if (ballPosition.x == 0 || ballPosition.x == WIDTH - 1) {
 		pauseGame();
 		if (ballPosition.x == 0) printf("Player 1 lost!");
 		else printf("Player 2 lost!");
 	}
 
+	// Update ball position
 	ballPosition.x += ballSpeed.x;
 	ballPosition.y += ballSpeed.y;
 
